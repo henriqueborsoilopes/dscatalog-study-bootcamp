@@ -13,8 +13,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.dto.ProductDTO;
+import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Product;
+import com.devsuperior.dscatalog.repositories.CategoryRespository;
 import com.devsuperior.dscatalog.repositories.ProductRespository;
 import com.devsuperior.dscatalog.services.exceptions.ControllerNotFoundException;
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
@@ -25,6 +28,9 @@ public class ProductService {
 	
 	@Autowired
 	private ProductRespository productRepository;
+	
+	@Autowired
+	private CategoryRespository categoryRepository;
 	
 	@Transactional(readOnly = true)
 	public Page<ProductDTO> findAllPaged(PageRequest pageRequest) {
@@ -42,7 +48,7 @@ public class ProductService {
 	@Transactional
 	public ProductDTO insert(ProductDTO productDTO) {
 		Product product = new Product();
-		//product.setName(productDTO.getName());
+		copyDtoToEntity(productDTO, product);
 		product = productRepository.save(product);
 		return new ProductDTO(product);
 	}
@@ -51,7 +57,7 @@ public class ProductService {
 	public ProductDTO update(Long id, ProductDTO productDTO) {
 		try {
 			Product product = productRepository.getOne(id);
-			//product.setName(productDTO.getName());
+			copyDtoToEntity(productDTO, product);
 			product = productRepository.save(product);
 			return new ProductDTO(product);
 		}
@@ -69,6 +75,20 @@ public class ProductService {
 		}
 		catch (DataIntegrityViolationException e) {
 			throw new DatabaseException("Integrity violation");
+		}
+	}
+	
+	private void copyDtoToEntity(ProductDTO productDTO, Product product) {
+		product.setName(productDTO.getName());
+		product.setDescription(productDTO.getDescription());
+		product.setPrice(productDTO.getPrice());
+		product.setImgUrl(productDTO.getImgUrl());
+		product.setDate(productDTO.getDate());
+		
+		product.getCategories().clear();
+		for (CategoryDTO categoryDTO : productDTO.getCategories()) {
+			Category category = categoryRepository.getOne(categoryDTO.getId());
+			product.getCategories().add(category);
 		}
 	}
 }
