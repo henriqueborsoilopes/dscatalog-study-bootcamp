@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.entities.Category;
-import com.devsuperior.dscatalog.repositories.CategoryRespository;
+import com.devsuperior.dscatalog.repositories.CategoryRepository;
 import com.devsuperior.dscatalog.services.exceptions.ControllerNotFoundException;
 import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 
@@ -24,7 +24,7 @@ import com.devsuperior.dscatalog.services.exceptions.DatabaseException;
 public class CategoryService {
 	
 	@Autowired
-	private CategoryRespository categoryRepository;
+	private CategoryRepository categoryRepository;
 	
 	@Transactional(readOnly = true)
 	public Page<CategoryDTO> findAllPaged(Pageable pageable) {
